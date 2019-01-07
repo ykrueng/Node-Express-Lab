@@ -21,10 +21,11 @@ class App extends Component {
     return (
       <div className="App">
         <Segment>
-          <h1>Post List</h1>
+          <Header textAlign="center" as="h1">Post List</Header>
           {
             this.state.posts.map((post, id) => (
-              <Segment key={id}>
+              <Segment style={{ maxWidth: "50rem", margin: "1rem auto" }}
+                color="black" key={id}>
                 <Header as="h3">{post.title}</Header>
                 <p>{post.contents}</p>
               </Segment>
