@@ -43,10 +43,15 @@ server.post("/api/posts", validatePostReq, async (req, res) => {
   }
 });
 
-server.get("/api/posts", (req, res) => {
-  db.find()
-    .then(posts => res.status(200).json(posts))
-    .catch(error => res.status(500).json(error));
+server.get("/api/posts", async (req, res) => {
+  try {
+    const posts = await db.find();
+    res.status(200).json(posts);
+  } catch (error) {
+    res.status(500).json({
+      error: "The posts information could not be retrieved."
+    })
+  }
 });
 
 server.get("/api/posts/:id", (req, res) => {
