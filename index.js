@@ -54,17 +54,27 @@ server.get("/api/posts", async (req, res) => {
   }
 });
 
-server.get("/api/posts/:id", (req, res) => {
+server.get("/api/posts/:id", async (req, res) => {
   const postId = req.params.id;
+  try {
+    const post = await db.findById(postId);
+
+    if (post.length === 0) {
+      res.status(404).json({
+        message: "The post with the specified ID does not exist."
+      });
+    }
+    res.status(200).json(post);
+  } catch(error) {
+    res.status(500).json({
+      error: "The post information could not be retrieved."
+    });
+  }
 
   db.findById(postId)
     .then(post => {
       if (post.length === 0) {
-        res.status(404).json({
-          error: "Cannot find a post with requested id"
-        });
       } else {
-        res.status(200).json(post);
       }
     })
     .catch(error => res.status(500).json(error));
