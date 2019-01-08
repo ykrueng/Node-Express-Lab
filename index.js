@@ -103,36 +103,24 @@ server.delete("/api/posts/:id", async(req, res) => {
   }
 });
 
-server.put("/api/posts/:id", (req, res) => {
+server.put("/api/posts/:id", validatePostReq, async (req, res) => {
   const { title, contents } = req.body;
-  const postId = req.params.id;
+  const { id } = req.params;
 
-  if (!title && !contents) {
-    res
-      .status(400)
-      .json({ message: "Did not receive title or contents to update" });
-  } else {
-    db.findById(postId)
-      .then(post => {
-        if (post.length === 0) {
-          res
-            .status(404)
-            .json({ message: "Cannot find a post with requested id" });
-        } else {
-          db.update(postId, { title, contents }).then(num => {
-            if (num === 1) {
-              res.status(200).json({
-                ...post[0],
-                title,
-                contents
-              });
-            } else {
-              res.status(500).json({ message: "Cannot perform update" });
-            }
-          });
-        }
-      })
-      .catch(error => res.status(500).json(error));
+  try {
+    const postToUpdate = await db.findById(id);
+    if (postToUpdate.length === 0) {
+      res.status(404).json({
+        message: "The post with the specified ID does not exist."
+      });
+    }
+    await db.update({ title, contents });
+    const updatedPost = await db.findById(id);
+    res.status(200).json({ updatedPost });
+  } catch (error) {
+    res.status(500).json({
+      error: "The post information could not be modified."
+    })
   }
 });
 
